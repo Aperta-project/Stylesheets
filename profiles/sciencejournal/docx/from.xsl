@@ -67,6 +67,8 @@ of this software, even if advised of the possibility of such damage.
     
   <xsl:param name="preserveEffects">true</xsl:param>
   <xsl:param name="preserveFontSizeChanges">true</xsl:param>
+  <xsl:param name="verbose">true</xsl:param>
+  <xsl:param name="minimal">true</xsl:param>
 
  <xsl:template match="tei:TEI" mode="pass2">
   <xsl:variable name="pass2">
@@ -151,16 +153,15 @@ of this software, even if advised of the possibility of such damage.
      </xsl:copy>
    </xsl:template>
 
-   <xsl:template match="tei:anchor" mode="pass3">
-     <xsl:choose>
-       <xsl:when test="not(preceding-sibling::text()) and not(parent::*/@xml:id)">
-	 <xsl:copy-of select="@xml:id"/>
-       </xsl:when>
-       <xsl:otherwise>
-	 <xsl:copy-of select="."/>
-       </xsl:otherwise>
-     </xsl:choose>
-   </xsl:template>
+  <!-- Instead of using anchor give @xml:id to superordinate element -->
+  <xsl:template match="tei:anchor[not(../@xml:id)][not(preceding-sibling::tei:anchor)]" mode="pass3"/>
+  <xsl:template match="tei:*[not(@xml:id)][tei:anchor]" mode="pass3">
+    <xsl:copy>
+      <xsl:attribute name="xml:id" select="tei:anchor[1]/@xml:id"/>
+      <xsl:apply-templates select="@*" mode="pass3"/>
+      <xsl:apply-templates mode="pass3"/>
+    </xsl:copy>
+  </xsl:template>
  <!-- and copy everything else -->
 
  <xsl:template match="@*|comment()|processing-instruction()|text()" mode="pass3">
