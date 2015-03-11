@@ -864,19 +864,14 @@ of this software, even if advised of the possibility of such damage.
    </doc>
 
     <xsl:template match="w:del">
-      <xsl:choose>
-	<xsl:when test="$processChangeInformation='true'">
-	  <del when="{@w:date}">
-	    <xsl:call-template name="identifyChange">
-	      <xsl:with-param name="who" select="@w:author"/>
-	    </xsl:call-template>
-	    <xsl:apply-templates/>
-	  </del>
-	</xsl:when>
-	<xsl:otherwise>
-	  <xsl:apply-templates/>
-	</xsl:otherwise>
-      </xsl:choose>
+    	<xsl:if test="$processChangeInformation='true'">
+    	  <del when="{@w:date}">
+    	    <xsl:call-template name="identifyChange">
+    	      <xsl:with-param name="who" select="@w:author"/>
+    	    </xsl:call-template>
+    	    <xsl:apply-templates/>
+    	  </del>
+    	</xsl:if>
     </xsl:template>
 
     <xsl:template match="w:rPr/w:del"/>
