@@ -91,6 +91,12 @@ of this software, even if advised of the possibility of such damage.
       </desc>
     </doc>
     
+    <!-- Override tei:is-front to ignore any kind of front matter formation -->
+    <xsl:function name="tei:is-front" as="xs:boolean">
+        <xsl:param name="p"/>
+        false
+    </xsl:function>
+
     <xsl:function name="tei:is-heading" as="xs:boolean">
       <xsl:param name="p"/>
       <xsl:variable name="s" select="$p/w:pPr/w:pStyle/@w:val"/>
