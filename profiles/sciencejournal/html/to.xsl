@@ -46,6 +46,10 @@
    <xsl:template name="javascriptHook">
      <style type="text/css">
        td {vertical-align: top;}
+       .figure { 
+        border-top: none;
+        border-bottom: none;
+       }
      </style>
      <xsl:if test="key('TABLESORT',1)">    
        <!-- DataTables CSS -->
