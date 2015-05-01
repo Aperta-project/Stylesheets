@@ -168,11 +168,17 @@
     </xsl:copy>
   </xsl:template>
   
-  <xsl:template match="tei:titleStmt/tei:title">
+  <xsl:template match="tei:titleStmt/tei:title[@type='main']">
     <xsl:copy>
       <xsl:apply-templates select="@*|node()"/>
+      <xsl:for-each select="parent::tei:titleStmt/tei:title[not(@type='main')]">
+        <xsl:text>: </xsl:text>
+        <xsl:apply-templates/>
+      </xsl:for-each>
     </xsl:copy>
   </xsl:template>
+  
+  <xsl:template match="tei:titleStmt/tei:title[not(@type='main')]"/>
   
   <!-- wrap other <author>|<editor> children in <s> -->
   <xsl:template match="tei:titleStmt/tei:author/*|tei:titleStmt/tei:editor/*" priority="0">
@@ -238,7 +244,7 @@
     </tagsDecl>
   </xsl:template>
   
-  <xsl:template match="tei:revisionDesc"/>
+  <xsl:template match="tei:fileDesc/tei:seriesStmt|tei:revisionDesc"/>
 
   <!-- ===== -->
   <!-- front -->
@@ -503,11 +509,9 @@
   <xsl:template match="tei:eg">
     <p rend="noindent">
       <code lang="xml">
-        <xsl:text disable-output-escaping="yes">&lt;![CDATA[</xsl:text>
         <xsl:apply-templates mode="egXML">
           <xsl:with-param name="resetIndent" select="text()[1]/replace(tokenize(., '&#10;')[normalize-space()][1], '(^\s+).*', '$1')" tunnel="yes"/>
         </xsl:apply-templates>
-        <xsl:text disable-output-escaping="yes">]]&gt;</xsl:text>
       </code>
     </p>
   </xsl:template>
@@ -1047,7 +1051,7 @@
       <xsl:call-template name="getAuthorInstance">
         <xsl:with-param name="dateOrTitle" select="$dateOrTitle"/>
       </xsl:call-template>
-      <xsl:apply-templates select="$dateOrTitle|node()[. >> $dateOrTitle]"/>
+      <xsl:apply-templates select="$dateOrTitle|node()[. >> ($dateOrTitle,current())[1]]"/>
     </xsl:copy>
   </xsl:template>
   
@@ -1059,6 +1063,7 @@
     <xsl:variable name="bibl.prev" select="preceding-sibling::*[1]/self::tei:bibl"/>
     <xsl:variable name="authorInstance.prev" select="preceding-sibling::*[1]/self::tei:bibl/node()[. &lt;&lt; $bibl.prev/(tei:date|tei:title)[1]]"/>
     <xsl:choose>
+      <xsl:when test="not($authorInstance.current)"/>
       <xsl:when test="$bibl.prev and (local:authors.serialize($authorInstance.current/self::*) = local:authors.serialize($authorInstance.prev/self::*))">
         <xsl:text>———. </xsl:text>
       </xsl:when>
@@ -1109,7 +1114,7 @@
   <xsl:template match="tei:TEI/@rend[. = ('jTEI', 'jTEI.internal')]"/>
   <xsl:template match="comment()|processing-instruction()"/>
   
-  <xsl:template match="tei:code/@lang|tei:row/@role|tei:cell/@role|tei:graphic/@width|tei:graphic/@height"/>
+  <xsl:template match="tei:code/@lang|tei:row/@role|tei:row/@rows|tei:row/@cols|tei:cell/@role|tei:graphic/@width|tei:graphic/@height"/>
   
   <!-- text() following an element for which smart quotes are being generated: skip starting punctuation (this is pulled into the quotation marks) -->
   <xsl:template match="text()[matches(., '^\s*[\p{P}-[:;\p{Ps}\p{Pe}]]')]

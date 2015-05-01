@@ -13,7 +13,7 @@
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xd="http://www.oxygenxml.com/ns/doc/xsl"
-    exclude-result-prefixes="xs xd" version="2.0"
+    exclude-result-prefixes="#all" version="2.0"
     xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
     xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0"
     xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"
@@ -87,7 +87,12 @@
         
         <!--                We need to grab the paper title and authors from the header. -->
         <text:p text:style-name="teiHead0">
-          <xsl:apply-templates select="/TEI/teiHeader[1]/fileDesc[1]/titleStmt[1]/title[@type='main']"/>
+          <xsl:for-each select="/TEI/teiHeader[1]/fileDesc[1]/titleStmt[1]/title[@type='main'], /TEI/teiHeader[1]/fileDesc[1]/titleStmt[1]/title[not(@type='main')]">
+            <xsl:apply-templates/>
+            <xsl:if test="position() != last()">
+              <xsl:text>: </xsl:text>
+            </xsl:if>
+          </xsl:for-each>
         </text:p>
         
         <text:p text:style-name="teiHead0">
@@ -259,13 +264,13 @@
         <xsl:choose>
           <xsl:when test="normalize-space(.) = '' and not(*)"></xsl:when>
           <!-- [RvdB] give right styling to simple/simplified paragraphs inside lists -->
-          <xsl:when test="(parent::item and not(child::cit or child::table or child::teix:egXML or child::figure or child::list[not(matches(@rend, 'inline'))])) or @rend = 'teiListItem'">
+          <xsl:when test="(parent::item and not(child::cit or child::table or child::teix:egXML or child::figure or child::list[not(matches(@rend, 'inline'))] or child::eg)) or @rend = 'teiListItem'">
             <text:p text:style-name="teiListItem">
               <xsl:apply-templates/>
             </text:p>
           </xsl:when>  
           <xsl:when test="parent::note"><xsl:apply-templates/></xsl:when>
-          <xsl:when test="not(child::cit or child::table or child::teix:egXML or child::figure or child::list[not(matches(@rend, 'inline'))])">
+          <xsl:when test="not(child::cit or child::table or child::teix:egXML or child::figure or child::list[not(matches(@rend, 'inline'))] or child::eg)">
                 <text:p text:style-name="teiPara"><xsl:apply-templates/></text:p>
             </xsl:when>
             <xsl:otherwise>
@@ -294,10 +299,10 @@
           <xsl:if test="$inputPara/parent::item">
             <xsl:attribute name="rend">teiListItem</xsl:attribute>
           </xsl:if>
-          <xsl:copy-of select="$inputPara/(*|text())[not(self::cit or self::table or self::teix:egXML or self::figure or self::list[not(matches(@rend, 'inline'))]) and not(preceding-sibling::cit or preceding-sibling::table or preceding-sibling::teix:egXML or preceding-sibling::figure or preceding-sibling::list[not(matches(@rend, 'inline'))])]"/>
+          <xsl:copy-of select="$inputPara/(*|text())[not(self::cit or self::table or self::teix:egXML or self::figure or self::list[not(matches(@rend, 'inline'))] or self::eg) and not(preceding-sibling::cit or preceding-sibling::table or preceding-sibling::teix:egXML or preceding-sibling::figure or preceding-sibling::list[not(matches(@rend, 'inline'))] or preceding-sibling::eg)]"/>
         </tei:p>
 <!--        Now we work through each cit and its following bits. -->
-      <xsl:for-each select="cit | table | teix:egXML | figure | list[not(matches(@rend, 'inline'))]">
+      <xsl:for-each select="cit | table | teix:egXML | figure | list[not(matches(@rend, 'inline'))] | eg">
             <xsl:variable name="pos" select="position()"/>
             <xsl:copy-of select="."/>
             <tei:p>
@@ -305,7 +310,7 @@
               <xsl:if test="$inputPara/parent::item">
                 <xsl:attribute name="rend">teiListItem</xsl:attribute>
               </xsl:if>
-              <xsl:copy-of select="$inputPara/(*|text())[not(self::cit or self::table or self::teix:egXML or self::figure or self::list[not(matches(@rend, 'inline'))]) and count(preceding-sibling::cit | preceding-sibling::table | preceding-sibling::teix:egXML | preceding-sibling::figure | preceding-sibling::list[not(matches(@rend, 'inline'))]) = $pos]"/>
+              <xsl:copy-of select="$inputPara/(*|text())[not(self::cit or self::table or self::teix:egXML or self::figure or self::list[not(matches(@rend, 'inline'))] or self::eg) and count(preceding-sibling::cit | preceding-sibling::table | preceding-sibling::teix:egXML | preceding-sibling::figure | preceding-sibling::list[not(matches(@rend, 'inline'))] | preceding-sibling::eg) = $pos]"/>
             </tei:p>
         </xsl:for-each>
     </xsl:template>
@@ -504,7 +509,7 @@
 
         <table:table table:style-name="{$tableId}">
 <!--       Table column widths.          -->
-          <xsl:variable name="numCols" select="sum(for $c in descendant::row[1]/cell return if (@cols) then xs:integer(@cols) else 1)"/>
+          <xsl:variable name="numCols" select="sum(for $c in descendant::row[1]/cell return if ($c/@cols) then xs:integer($c/@cols) else 1)"/>
           <xsl:for-each select="1 to $numCols">
             <table:table-column table:style-name="{concat($tableId, '_col_', .)}"/>
           </xsl:for-each>
@@ -549,33 +554,28 @@
         <text:p text:style-name="{if (@role='label' or parent::row[@role='label']) then 'teiParaTinyMarginsHeader' else 'teiParaTinyMargins'}"><xsl:apply-templates/></text:p>
       </table:table-cell>
     </xsl:template>
-    
+
 <!--    Standard code is a bit tricky. -->
   <xsl:template match="eg">
-    <xsl:choose>
-      <xsl:when test="parent::figure">
-        <text:p text:style-name="teiCodeBlock">
-          <xsl:if test="following-sibling::head"><xsl:attribute name="fo:keep-with-next">always</xsl:attribute></xsl:if>
-          <xsl:if test="parent::figure/@xml:id">
-            <text:bookmark text:name="{parent::figure/@xml:id}"/>
-          </xsl:if>
-        <xsl:analyze-string select="." regex="\n">
-          <xsl:matching-substring>
-            <text:line-break/>
-          </xsl:matching-substring>
-          <xsl:non-matching-substring>
-            <xsl:analyze-string select="." regex="\s">
-              <xsl:matching-substring><text:s/></xsl:matching-substring>
-              <xsl:non-matching-substring><xsl:copy-of select="."/></xsl:non-matching-substring>
-            </xsl:analyze-string>
-          </xsl:non-matching-substring>
-        </xsl:analyze-string>
-        </text:p>
-      </xsl:when>
-      <xsl:otherwise>
-        <text:span text:style-name="teiCode"><xsl:apply-templates/></text:span>
-      </xsl:otherwise>
-    </xsl:choose>
+    <!-- determine maximal amount of preceding whitespace that can be stripped out -->
+    <xsl:variable name="stripIndent" select="min((for $line in tokenize(., '\n')[.] return string-length(replace($line, '^(\s+).*', '$1'))))"/>
+    <text:p text:style-name="teiCodeBlock">
+      <xsl:if test="parent::figure and following-sibling::head"><xsl:attribute name="fo:keep-with-next">always</xsl:attribute></xsl:if>
+      <xsl:if test="parent::figure/@xml:id">
+        <text:bookmark text:name="{parent::figure/@xml:id}"/>
+      </xsl:if>
+      <xsl:analyze-string select="." regex="\n">
+        <xsl:matching-substring>
+          <text:line-break/>
+        </xsl:matching-substring>
+        <xsl:non-matching-substring>
+          <xsl:analyze-string select="if ($stripIndent > 0) then replace(., concat('^\s{', $stripIndent, '}'), '') else ." regex="\s">
+            <xsl:matching-substring><text:s/></xsl:matching-substring>
+            <xsl:non-matching-substring><xsl:copy-of select="."/></xsl:non-matching-substring>
+          </xsl:analyze-string>
+        </xsl:non-matching-substring>
+      </xsl:analyze-string>
+    </text:p>
   </xsl:template>
     
 <!--    egXML is going to be quite exciting. -->
@@ -716,7 +716,7 @@
           <xsl:for-each select="graphic">
             <xsl:variable name="imagetype" select="tokenize(@url,'\.')[last()]"/>
             <xsl:text>Pictures/resource</xsl:text>
-            <xsl:number level="any"/>
+            <xsl:value-of select="$graphicNum"/>
             <xsl:text>.</xsl:text>
             <xsl:value-of select="$imagetype"/>
           </xsl:for-each>
