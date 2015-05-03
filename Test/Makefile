@@ -246,6 +246,9 @@ test-from-docx: test.rng
 	$(BINDIR)/docxtotei --profile=tei test40.docx temp.xml
 	xmllint --format temp.xml | perl cleanup.pl > test40.xml  && rm temp.xml
 	diff test40.xml expected-results/test40.xml
+	$(BINDIR)/docxtotei --profile=tei test41.docx temp.xml
+	xmllint --format temp.xml | perl cleanup.pl > test41.xml  && rm temp.xml
+	diff test41.xml expected-results/test41.xml
 
 test-to-docx:
 	@echo BUILD: testing to-docx
