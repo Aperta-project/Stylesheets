@@ -137,7 +137,7 @@
           <item>The text before the first heading goes to the element &lt;front&gt;, with styles Title, Subtitle, Author and Date being mapped to appropriate TEI elements. The rest of the text in this division ignored; the first heading and the rest becomes &lt;body&gt;.</item>
           <item>Some styles get extra processing, e.g. a series of paragraphs of style <hi rend="italic">Bibliography</hi> are converted into a <hi rend="underline">listBibl</hi> element containing a series of <hi rend="underline">bibl</hi> elements.</item>
           <item>Styles starting with <hi rend="italic">tei:</hi> are substituted by their TEI element, as explained in the Section on TEI elements.</item>
-          <item>Some <hi rend="italic">tei:</hi> styles have shorthand notation, e.g<hi rend="italic">. tei:orgName</hi> goes to <hi rend="underline">name[@type=’org’]</hi>. </item>
+          <item>Some <hi rend="italic">tei:</hi> styles have shorthand notation, e.g<hi rend="italic" xml:space="preserve">. tei:orgName</hi> goes to <hi rend="underline">name[@type=’org’]</hi>. </item>
         </list>
       </div>
       <div>
@@ -147,7 +147,7 @@
           <head><anchor xml:id="Toc382049197"/>Basic formatting</head>
           <p>Plain paragraphs are converted to <hi rend="underline">p</hi>. Empty paragraphs are removed even if they contain white-space, e.g:</p>
           <p>All types of links (to <ref target="http://nl.ijs.si/tei/convert/">web pages</ref>, <ref target="mailto:tomaz.erjavec@ijs.si">mail addresses</ref>, and document-internal cross-references, e.g. to the section on TEI element styles) should be converted correctly. References to documents on disk will of course not work.</p>
-          <p>Formatting is converted to the value of <hi rend="underline">hi/@rend</hi>: <hi rend="bold">bold</hi>, <hi rend="italic">italic</hi>, <hi rend="underline">underline</hi>, and <hi rend="strikethrough">strikethrough</hi> are preserved, also if more than one style is used, e.g. <hi rend="italic bold underline">italic bold underline</hi>. Colours are also converted: <hi rend="background(yellow)">rumeno ozadje</hi>, <hi rend="color(FF0000)">rdeča</hi>, <hi rend="color(92D050)">svetlozelena</hi>, <hi rend="color(C00000)">temno rdeča</hi>, <hi rend="color(FFC000)">oranžna</hi>, <hi rend="color(FFFF00)">rumena</hi>, <hi rend="color(00B0F0)">svetlomodra</hi>, <hi rend="color(0070C0)">modra</hi>, <hi rend="color(7030A0)">vijolična, </hi><hi rend="italic bold underline color(76923C)">podčrtana, krepka in nenavadna</hi>. The exact details, such as the colour of <hi rend="wavyunderline">underline</hi> and more <hi rend="bold">fancy text effects</hi> are not preserved. </p>
+          <p>Formatting is converted to the value of <hi rend="underline">hi/@rend</hi>: <hi rend="bold">bold</hi>, <hi rend="italic">italic</hi>, <hi rend="underline">underline</hi>, and <hi rend="strikethrough">strikethrough</hi> are preserved, also if more than one style is used, e.g. <hi rend="italic bold underline">italic bold underline</hi>. Colours are also converted: <hi rend="background(yellow)">rumeno ozadje</hi>, <hi rend="color(FF0000)">rdeča</hi>, <hi rend="color(92D050)">svetlozelena</hi>, <hi rend="color(C00000)">temno rdeča</hi>, <hi rend="color(FFC000)">oranžna</hi>, <hi rend="color(FFFF00)">rumena</hi>, <hi rend="color(00B0F0)">svetlomodra</hi>, <hi rend="color(0070C0)">modra</hi>, <hi rend="color(7030A0)" xml:space="preserve">vijolična, </hi><hi rend="italic bold underline color(76923C)">podčrtana, krepka in nenavadna</hi>. The exact details, such as the colour of <hi rend="wavyunderline">underline</hi> and more <hi rend="bold">fancy text effects</hi> are not preserved. </p>
         </div>
         <div>
           <head><anchor xml:id="Toc382049198"/>Character level styles</head>
@@ -214,13 +214,13 @@
                 <hi rend="bold">Lendava</hi>
               </cell>
               <cell>
-                <hi rend="bold">Murska Sobota</hi>
+                <hi rend="bold" xml:space="preserve">Murska Sobota</hi>
               </cell>
               <cell>
                 <hi rend="bold">Beltinci</hi>
               </cell>
               <cell>
-                <hi rend="bold">okoliške vasi</hi>
+                <hi rend="bold" xml:space="preserve">okoliške vasi</hi>
               </cell>
               <cell>
                 <hi rend="bold">skupaj</hi>
