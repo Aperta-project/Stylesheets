@@ -38,6 +38,7 @@
   <xsl:template name="stdfooter"/>
    <xsl:template name="stdheader">
      <xsl:param name="title"/>
+     <xsl:param name="wrap"/>
    </xsl:template>
 
 
