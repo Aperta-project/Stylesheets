@@ -10,7 +10,7 @@
     xmlns:teix="http://www.tei-c.org/ns/Examples" 
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
     version="2.0" 
-    exclude-result-prefixes="teix a s tei xs rng sch xsi">
+    exclude-result-prefixes="#all">
 
   <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl" scope="stylesheet" type="stylesheet">
     <desc>
@@ -196,9 +196,6 @@ of this software, even if advised of the possibility of such damage.
     </xsl:variable>
     <xsl:variable name="source">
       <xsl:choose>
-	<xsl:when test="starts-with($loc,'/')">
-	  <xsl:value-of select="$loc"/>
-	</xsl:when>
 	<xsl:when test="starts-with($loc,'file:')">
 	  <xsl:value-of select="$loc"/>
 	</xsl:when>
@@ -213,8 +210,15 @@ of this software, even if advised of the possibility of such damage.
 	      select="replace($loc,'tei:',$defaultTEIServer)"/>
 	  <xsl:text>/xml/tei/odd/p5subset.xml</xsl:text>
 	</xsl:when>
+	<xsl:when test="base-uri($top)=''">
+	  <xsl:value-of select="$currentDirectory"/>
+	  <xsl:value-of select="$loc"/>
+	</xsl:when>
+	<xsl:when test="$currentDirectory=''">
+	  <xsl:value-of select="resolve-uri($loc,base-uri($top))"/>
+	</xsl:when>
 	<xsl:otherwise>
-	  <xsl:value-of select="string-join(($currentDirectory, $loc), '/')"/>
+	  <xsl:value-of select="resolve-uri(string-join(($currentDirectory, $loc), '/'),base-uri($top))"/>
 	</xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
@@ -223,7 +227,8 @@ of this software, even if advised of the possibility of such damage.
 	<xsl:call-template name="die">
 	  <xsl:with-param name="message">
 	    <xsl:text>Source </xsl:text>
-	   <xsl:value-of select='$source'/>
+	   <xsl:value-of select='($source,$loc,name($top),base-uri($top))'
+			 separator=" + "/>
 	   <xsl:text> not readable</xsl:text>
 	  </xsl:with-param>
 	</xsl:call-template>
@@ -319,8 +324,9 @@ of this software, even if advised of the possibility of such damage.
       <xsl:message>Phase 0: summarize specGrp <xsl:value-of select="@xml:id"/>
       </xsl:message>
     </xsl:if>
-    <table xmlns="http://www.tei-c.org/ns/1.0">
-      <xsl:for-each select="*">
+    <xsl:if test="tei:specGrpRef|tei:elementSpec|tei:classSpec|tei:macroSpec|tei:moduleRef">
+    <table xmlns="http://www.tei-c.org/ns/1.0" rend="specGrpSummary">
+      <xsl:for-each select="tei:specGrpRef|tei:elementSpec|tei:classSpec|tei:macroSpec|tei:moduleRef">
         <row>
           <xsl:choose>
             <xsl:when test="self::tei:specGrpRef">
@@ -363,6 +369,7 @@ of this software, even if advised of the possibility of such damage.
         </row>
       </xsl:for-each>
     </table>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="tei:schemaSpec" mode="pass0">
@@ -390,7 +397,7 @@ of this software, even if advised of the possibility of such damage.
   </xsl:template>
 
   <xsl:template match="tei:specGrpRef" mode="pass0">
-    <xsl:sequence select="if ($verbose='true')then tei:message(concat('Phase  0: expand specGrpRef ',@target)) else ()"/>
+    <xsl:sequence select="if ($verbose='true')then tei:message(concat('Phase 0: expand specGrpRef ',@target)) else ()"/>
     <xsl:choose>
       <xsl:when test="starts-with(@target,'#')">
 	<xsl:apply-templates  mode="pass0"
@@ -487,11 +494,11 @@ of this software, even if advised of the possibility of such damage.
 	</xsl:for-each>
       </xsl:copy>
     </xsl:variable>
-    <!--
+<!--
     	<xsl:result-document href="/tmp/odd2odd-pass1.xml">
 	  <xsl:copy-of select="$pass1"/>
 	</xsl:result-document>
-    -->
+-->
     <xsl:for-each select="$pass1">
       <xsl:apply-templates mode="pass2"/>
     </xsl:for-each>
@@ -562,7 +569,7 @@ of this software, even if advised of the possibility of such damage.
 		<xsl:if test="$verbose='true'">
 		  <xsl:message>Phase 1: import <xsl:value-of  select="$name"/> by direct reference</xsl:message>
 		</xsl:if>
-	    <xsl:apply-templates mode="pass1" select="."/>
+		<xsl:apply-templates mode="pass1" select="."/>
 	      </xsl:for-each>
 	    </xsl:when>
 	    <xsl:otherwise>
@@ -725,6 +732,7 @@ of this software, even if advised of the possibility of such damage.
          - otherwise copy 
         done
   -->
+
     <xsl:variable name="specName" select="tei:uniqueName(.)"/>
     <xsl:variable name="N" select="local-name(.)"/>
       <xsl:choose>
@@ -747,7 +755,7 @@ of this software, even if advised of the possibility of such damage.
         </xsl:when>
         <xsl:otherwise>
           <xsl:if test="$verbose='true'">
-	    <xsl:message>Phase 2: keep <xsl:value-of  select="$specName"/></xsl:message>
+	    <xsl:message>Phase 2: keep <xsl:value-of  select="($N,$specName)"/></xsl:message>
           </xsl:if>
           <xsl:apply-templates mode="justcopy" select="."/>
         </xsl:otherwise>
@@ -791,9 +799,6 @@ of this software, even if advised of the possibility of such damage.
 	   for change individually.
       -->
         <xsl:for-each select="$ODD/key('odd2odd-CHANGE',$elementName)">
-	  <xsl:if test="$verbose='true'">
-	    <xsl:message>Change <xsl:value-of select="$elementName"/></xsl:message>
-	  </xsl:if>
           <xsl:copy-of select="@ns"/>
           <!-- if there is an altIdent, use it -->
           <xsl:apply-templates mode="justcopy" select="tei:altIdent"/>
@@ -924,7 +929,19 @@ of this software, even if advised of the possibility of such damage.
               <xsl:with-param name="objectName" select="$elementName"/>
             </xsl:call-template>
           </attList>
-          <!-- exemplum, remarks and listRef are either replacements or not -->
+	  
+
+      <!-- models -->
+          <xsl:choose>
+            <xsl:when test="tei:modelGrp|tei:model|tei:modelSequence">
+              <xsl:apply-templates mode="justcopy" select="tei:modelGrp|tei:model|tei:modelSequence"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:apply-templates mode="justcopy" select="$ORIGINAL/tei:modelGrp|$ORIGINAL/tei:model|$ORIGINAL/tei:modelSequence"/>
+            </xsl:otherwise>
+          </xsl:choose>
+
+      <!-- exempla -->
           <xsl:choose>
             <xsl:when test="$stripped='true'"/>
             <xsl:when test="tei:exemplum">
@@ -1323,6 +1340,7 @@ so that is only put back in if there is some content
           </xsl:otherwise>
         </xsl:choose>
       </attList>
+      <xsl:apply-templates mode="odd2odd-copy" select="tei:modelGrp|tei:model|tei:modelSequence"/>
       <xsl:if test="$stripped='false'">
         <xsl:apply-templates mode="justcopy" select="tei:exemplum"/>
         <xsl:apply-templates mode="justcopy" select="tei:remarks"/>
@@ -1709,10 +1727,8 @@ so that is only put back in if there is some content
   </xsl:template>
 
   <xsl:template name="odd2odd-getversion">
-    <xsl:message>check schema <xsl:value-of select="$whichSchemaSpec"/></xsl:message>
     <xsl:choose>
       <xsl:when test="key('odd2odd-SCHEMASPECS',$whichSchemaSpec)">
-    <xsl:message>found schema <xsl:value-of select="$whichSchemaSpec"/></xsl:message>
 	<xsl:for-each
 	    select="key('odd2odd-SCHEMASPECS',$whichSchemaSpec)">
 	  <xsl:variable name="source" select="tei:workOutSource(.)"/>
@@ -1778,7 +1794,7 @@ so that is only put back in if there is some content
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template match="tei:valDesc|tei:equiv|tei:gloss|tei:desc|tei:remarks|tei:exemplum|tei:listRef" mode="pass3">
+  <xsl:template match="tei:valDesc|tei:equiv|tei:gloss|tei:desc|tei:remarks|tei:exemplum|tei:modelGrp|tei:model|tei:modelSequence|tei:rendition|tei:listRef" mode="pass3">
     <xsl:choose>
       <xsl:when test="$stripped='true'"> </xsl:when>
       <xsl:otherwise>
@@ -1829,12 +1845,12 @@ so that is only put back in if there is some content
     <xsl:copy>
       <xsl:copy-of select="@*"/>
       <xsl:apply-templates mode="pass3" select="text()|comment()|*"/>
+      <xsl:copy-of select="document($orig)//tei:schemaSpec/tei:rendition"/>
       <xsl:for-each select="distinct-values(//*[@module]/@module)">
 	<xsl:variable name="m" select="."/>
 	  <xsl:for-each select="document($orig)/key('odd2odd-MODULES',$m)">
 	    <xsl:copy>
-	      <xsl:attribute name="n"
-			     select="ancestor::tei:div[last()]/@xml:id"/>
+	      <xsl:attribute name="n"   select="ancestor::tei:div[last()]/@xml:id"/>
 	      <xsl:copy-of select="@*"/>
 	    </xsl:copy>
 	  </xsl:for-each>
@@ -1974,6 +1990,10 @@ so that is only put back in if there is some content
 
   <xsl:template match="@*|text()" mode="pass4">
     <xsl:copy-of select="."/>
+  </xsl:template>
+
+  <xsl:template match="@mode" mode="pass4">
+      <xsl:attribute name="rend" select="."/>
   </xsl:template>
 
   <xsl:template match="*" mode="pass4">
