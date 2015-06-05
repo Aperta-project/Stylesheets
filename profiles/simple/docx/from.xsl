@@ -25,6 +25,7 @@
 
 
     <xsl:import href="../../default/docx/from.xsl"/>
+
   <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl" scope="stylesheet" type="stylesheet">
     <desc>
       <p>This software is dual-licensed:
@@ -65,113 +66,20 @@ of this software, even if advised of the possibility of such damage.
     </desc>
   </doc>
     
-  <xsl:param name="preserveEffects">true</xsl:param>
-  <xsl:param name="preserveSpace">true</xsl:param>
-  <xsl:param name="preserveFontSizeChanges">true</xsl:param>
-
- <xsl:template match="tei:TEI" mode="pass2">
-  <xsl:variable name="pass2">
-   <xsl:copy>
-    <xsl:apply-templates mode="pass2"/>
-   </xsl:copy>
-  </xsl:variable>
-  <xsl:apply-templates select="$pass2" mode="pass3"/>
- </xsl:template>
-
-  <xsl:template name="fromDocxEffectsHook">
-    <xsl:if test="w:rPr/w:rStyle/@w:val='Heading 2 Char' and not(w:rPr/w:b/@w:val='0')">
-      <n>bold</n>
-    </xsl:if>
+  <xsl:include href="../../../simple/mapatts.xsl"/>
+  
+  <xsl:template name="table-rendition">
+    <xsl:attribute name="rendition">simple:rules</xsl:attribute>
+  </xsl:template>
+  
+  <xsl:template match="w:document">
+    <TEI rendition="simple:simple">
+      <!-- create teiHeader -->
+      <xsl:call-template name="create-tei-header"/>
+      
+      <!-- convert main and back matter -->
+      <xsl:apply-templates select="w:body"/>
+    </TEI>
   </xsl:template>
 
-   
-    <doc type="function" xmlns="http://www.oxygenxml.com/ns/doc/xsl"  >
-      <desc>Defines whether or not a word paragraph is a  heading 
-      </desc>
-    </doc>
-    
-    <xsl:function name="tei:is-heading" as="xs:boolean">
-      <xsl:param name="p"/>
-      <xsl:variable name="s" select="$p/w:pPr/w:pStyle/@w:val"/>
-      <xsl:choose>
-	<xsl:when test="$s=''">false</xsl:when>
-	<xsl:when test="starts-with($s,'heading')">true</xsl:when>
-	<xsl:when test="starts-with($s,'Heading')">true</xsl:when>
-	<xsl:when test="$s='Subtitle'">true</xsl:when>
-	<xsl:otherwise>false</xsl:otherwise>
-      </xsl:choose>
-    </xsl:function>
-
-    <xsl:function name="tei:heading-level" as="xs:string">
-      <xsl:param name="p"/>
-      <xsl:analyze-string select="$p/w:pPr/w:pStyle/@w:val" regex="[^0-9]*([0-9])">
-	<xsl:matching-substring>
-	  <xsl:value-of select="number(regex-group(1))"/>
-	</xsl:matching-substring>
-	<xsl:non-matching-substring>
-	  <xsl:choose>
-	    <xsl:when test="regex-group(0)='Subtitle'">2</xsl:when>
-	    <xsl:otherwise>1</xsl:otherwise>
-	  </xsl:choose>
-	</xsl:non-matching-substring>
-      </xsl:analyze-string>
-    </xsl:function>
-    
-    <doc type="function" xmlns="http://www.oxygenxml.com/ns/doc/xsl"  >
-      <desc>Is given a header style and returns the style for the next level
-	header 
-      </desc>
-    </doc>
-    
-    <xsl:function name="tei:get-nextlevel-header" as="xs:string">
-      <xsl:param name="current-header"/>
-      <xsl:choose>
-	<xsl:when test="$current-header='Title'">
-	  <xsl:text>Subtitle</xsl:text>
-	</xsl:when>
-	<xsl:otherwise>
-	  <xsl:value-of select="translate($current-header,'12345678','23456789')"/>
-	</xsl:otherwise>
-      </xsl:choose>
-    </xsl:function>
-
-   <xsl:template match="tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title" mode="pass2">
-     <xsl:copy>
-    <xsl:choose>
-      <xsl:when test="string-length(.)=0">
-      <xsl:for-each
-	  select="ancestor::tei:TEI/tei:text/tei:body/tei:p[@rend =
-		  'Title'][1]" >
-	<xsl:apply-templates mode="pass2"/>
-      </xsl:for-each>
-      </xsl:when>
-      <xsl:otherwise>
-	<xsl:apply-templates mode="pass2"/>
-      </xsl:otherwise>
-    </xsl:choose>
-     </xsl:copy>
-   </xsl:template>
-
-   <xsl:template match="tei:anchor" mode="pass3">
-     <xsl:choose>
-       <xsl:when test="not(preceding-sibling::text()) and not(parent::*/@xml:id)">
-	 <xsl:copy-of select="@xml:id"/>
-       </xsl:when>
-       <xsl:otherwise>
-	 <xsl:copy-of select="."/>
-       </xsl:otherwise>
-     </xsl:choose>
-   </xsl:template>
- <!-- and copy everything else -->
-
- <xsl:template match="@*|comment()|processing-instruction()|text()" mode="pass3">
-  <xsl:copy-of select="."/>
- </xsl:template>
- <xsl:template match="*" mode="pass3">
-  <xsl:copy>
-   <xsl:apply-templates select="*|@*|processing-instruction()|comment()|text()" mode="pass3"/>
-  </xsl:copy>
- </xsl:template>
-
   </xsl:stylesheet>
-  

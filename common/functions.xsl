@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xsl:stylesheet 
-xmlns:sch="http://purl.oclc.org/dsdl/schematron"
+    xmlns:ann="http://relaxng.org/ns/compatibility/annotations/1.0"
+ xmlns:sch="http://purl.oclc.org/dsdl/schematron"
 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 xmlns:cals="http://www.oasis-open.org/specs/tm9901"
 xmlns:tei="http://www.tei-c.org/ns/1.0"
@@ -21,7 +22,8 @@ xmlns:mml="http://www.w3.org/1998/Math/MathML"
 xmlns:tbx="http://www.lisa.org/TBX-Specification.33.0.html"
 xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"
 xmlns:teidocx="http://www.tei-c.org/ns/teidocx/1.0" version="2.0"
-exclude-result-prefixes="sch cals ve o r m v wp w10 w wne mml tbx iso tei a xs pic fn">
+    exclude-result-prefixes="#all"
+>
   <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl" scope="stylesheet" type="stylesheet">
     <desc>
       <p> TEI Utility stylesheet defining functions for use in all
@@ -459,15 +461,6 @@ of this software, even if advised of the possibility of such damage.
       </xsl:otherwise>
     </xsl:choose>
   </xsl:function>
-  <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl">
-    <desc>Returns the current date.</desc>
-  </doc>
-  <xsl:function name="tei:whatsTheDate">
-    <xsl:value-of select="format-dateTime(current-dateTime(),'[Y]-[M02]-[D02]T[H02]:[m02]:[s02]Z')"/>
-  </xsl:function>
-  <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl">
-    <desc>Whether an element has any more (useful) text in its parent</desc>
-  </doc>
   <xsl:function name="tei:isLast" as="xs:boolean">
     <xsl:param name="element"/>
     <xsl:for-each select="$element">
@@ -514,10 +507,12 @@ of this software, even if advised of the possibility of such damage.
 	  <xsl:choose>
 	    <xsl:when test="(tei:isFootNote(..) or tei:isEndNote(..))
 			    and position()=1"/>
-	    <!-- but if its in a run on inline objects with the same
+	    <!-- but if its in a run of inline objects with the same
 	    name (like a sequence of <hi>), then the space needs
 	    keeping -->
-	    <xsl:when test="(tei:isInline(parent::*)  and parent::*/preceding-sibling::node()[1][name()=$context])">
+	    <xsl:when test="(tei:isInline(parent::*)  and
+			    parent::*/preceding-sibling::node()[1][name()=$context])">
+		      <xsl:call-template name="space"/>
               <xsl:call-template name="space"/>
 	    </xsl:when>
 	    <xsl:when test="position()=1"/>
@@ -1548,12 +1543,10 @@ of this software, even if advised of the possibility of such damage.
       else false()"/>
   </xsl:function>
 
-
-  <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl">
-      <desc>[common] work out the date and time, unless we have been
-      told not to</desc>
-   </doc>
-  <xsl:template name="whatsTheDate">
+ <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl">
+    <desc>Returns the current date.</desc>
+  </doc>
+  <xsl:function name="tei:whatsTheDate" as="node()+">
     <xsl:choose>
       	<xsl:when test="$useFixedDate='true'">1970-01-01</xsl:when>
 	<xsl:otherwise>
@@ -1561,7 +1554,11 @@ of this software, even if advised of the possibility of such damage.
 	      select="format-dateTime(current-dateTime(),'[Y]-[M02]-[D02]T[H02]:[m02]:[s02]Z')"/>
 	</xsl:otherwise>
     </xsl:choose>
-  </xsl:template>
+  </xsl:function>
+  
+  <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl">
+    <desc>Whether an element has any more (useful) text in its parent</desc>
+  </doc>
   
 <xsl:template match="processing-instruction()[name(.)='entity']" mode="#all">
     <xsl:value-of select="tei:escapeChars(concat('&amp;',normalize-space(.),';'),parent::*)"/>
