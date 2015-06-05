@@ -571,9 +571,7 @@ of this software, even if advised of the possibility of such damage.
             <xsl:apply-templates select="tei:ref" mode="pass2"/>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:value-of select="text()[1]"/>
-            <xsl:apply-templates select="tei:ref" mode="pass2"/>
-            <xsl:value-of select="remove(text(), 1)"/>
+            <xsl:apply-templates select="tei:ref|text()" mode="pass2"/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
