@@ -369,7 +369,7 @@ of this software, even if advised of the possibility of such damage.
       </xsl:when>
 
       <xsl:otherwise>
-        <xsl:apply-templates mode="tangle" select="tei:*">
+        <xsl:apply-templates mode="tangle">
           <xsl:with-param name="element" select="$element"/>
         </xsl:apply-templates>
       </xsl:otherwise>
@@ -1349,8 +1349,6 @@ select="$makeDecls"/></xsl:message>
     <xsl:apply-templates/>
   </xsl:template>
 
-
-
   <xsl:template name="attributeData">
     <xsl:choose>
       <xsl:when test="tei:valList[@type='closed']">
@@ -1403,17 +1401,23 @@ select="$makeDecls"/></xsl:message>
             <xsl:when test="tei:datatype/rng:ref[@name='data.enumerated']">
               <data type="Name"/>
             </xsl:when>
+	    <xsl:when test="tei:dataRef">
+              <xsl:apply-templates select="tei:dataRef"/>
+	    </xsl:when>
 	    <xsl:when test="not(tei:datatype)">
               <data type="Name"/>
 	    </xsl:when>
             <xsl:otherwise>
-              <xsl:apply-templates select="tei:datatype/rng:*"/>
+              <xsl:apply-templates select="tei:datatype/*"/>
             </xsl:otherwise>
           </xsl:choose>
         </choice>
       </xsl:when>
       <xsl:when test="tei:datatype/*">
         <xsl:apply-templates select="tei:datatype/*"/>
+      </xsl:when>
+      <xsl:when test="tei:dataRef">
+        <xsl:apply-templates select="tei:dataRef"/>
       </xsl:when>
       <xsl:otherwise>
         <text xmlns="http://relaxng.org/ns/structure/1.0"/>
@@ -2146,7 +2150,9 @@ select="$makeDecls"/></xsl:message>
   <xsl:template match="tei:interleave"   mode="#default tangle">
     <xsl:message>met an interleave</xsl:message>
   </xsl:template>
-  <xsl:template match="tei:elementRef|tei:classRef|tei:macroRef|tei:dataRef"   mode="#default tangle">
+
+  
+  <xsl:template match="tei:elementRef|tei:classRef|tei:macroRef"   mode="#default tangle">
     <xsl:variable name="prefixedName" select="tei:generateRefPrefix(.)"/>
     <xsl:variable name="wrapperElement"
 		  select="tei:generateIndicators(@minOccurs,@maxOccurs)"/>

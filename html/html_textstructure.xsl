@@ -201,7 +201,7 @@ of this software, even if advised of the possibility of such damage.
 	     </xsl:variable>
 	     
 	     <xsl:if test="$verbose='true'">
-	       <xsl:message>Opening file <xsl:value-of select="$outName"/>
+	       <xsl:message>Opening file (process TEI)<xsl:value-of select="$outName"/>
 	       </xsl:message>
 	     </xsl:if>
 	     <xsl:result-document doctype-public="{$doctypePublic}" doctype-system="{$doctypeSystem}"
@@ -449,7 +449,7 @@ of this software, even if advised of the possibility of such damage.
       </xsl:variable>
     
       <xsl:if test="$verbose='true'">
-         <xsl:message>Opening file <xsl:value-of select="$outName"/>
+         <xsl:message>Opening file (split TEI)<xsl:value-of select="$outName"/>
          </xsl:message>
       </xsl:if>
       <xsl:result-document doctype-public="{$doctypePublic}" doctype-system="{$doctypeSystem}"
@@ -481,6 +481,7 @@ of this software, even if advised of the possibility of such damage.
    </doc>
   <xsl:template match="tei:closer">
 	<xsl:choose>
+	  <xsl:when test="not(node())"/>
 	  <xsl:when test="tei:signed">
 	    <div class="closer">
 	      <xsl:apply-templates/>
@@ -680,7 +681,7 @@ of this software, even if advised of the possibility of such damage.
       </xsl:variable>
       
       <xsl:if test="$verbose='true'">
-	<xsl:message>Opening file <xsl:value-of select="$outName"/>
+	<xsl:message>Opening file (makeDivPage)<xsl:value-of select="$outName"/>
 	</xsl:message>
       </xsl:if>
       <xsl:result-document doctype-public="{$doctypePublic}" doctype-system="{$doctypeSystem}"
@@ -981,6 +982,7 @@ of this software, even if advised of the possibility of such damage.
   <xsl:template name="doDivs">
       <xsl:for-each select="tei:TEI/tei:text">
          <xsl:for-each select="tei:front|tei:body|tei:back">
+	   <xsl:comment>TEI <xsl:value-of select="name()"/></xsl:comment>
             <xsl:for-each select="tei:div|tei:div1">
                <xsl:variable name="currentID">
                   <xsl:apply-templates mode="ident" select="."/>
@@ -1024,7 +1026,7 @@ of this software, even if advised of the possibility of such damage.
 	   </xsl:call-template>
 	 </xsl:variable>	
 	 <xsl:if test="$verbose='true'">
-	   <xsl:message>Opening file <xsl:value-of select="$outName"/>
+	   <xsl:message>Opening file (doPage) <xsl:value-of select="$outName"/>
 	   </xsl:message>
 	 </xsl:if>
 	 <xsl:result-document doctype-public="{$doctypePublic}" doctype-system="{$doctypeSystem}"
@@ -1654,7 +1656,7 @@ function click(d) {
 		       </xsl:element>
 		     </xsl:if>
                      <xsl:call-template name="makeDivBody">
-		       <xsl:with-param name="depth" select="count(ancestor::tei:div)"/>
+		       <xsl:with-param name="depth" select="count(ancestor::tei:div)+1"/>
 		     </xsl:call-template>
                      <xsl:if test="$bottomNavigationPanel='true'">
 		       <xsl:element name="{if ($outputTarget='html5') then 'nav' else 'div'}">
@@ -2175,7 +2177,7 @@ function click(d) {
 	       </xsl:with-param>
 	     </xsl:call-template>
 	   </xsl:if>
-	    <xsl:comment> front matter </xsl:comment>
+	    <xsl:comment>TEI  front matter </xsl:comment>
 	    <xsl:apply-templates select="tei:text/tei:front"/>
 	    <xsl:if test="$autoToc='true' and (descendant::tei:div or descendant::tei:div1) and not(descendant::tei:divGen[@type='toc'])">
 	      <h2>
@@ -2195,7 +2197,7 @@ function click(d) {
 		</table>
 	      </xsl:when>
 	      <xsl:otherwise>
-		<xsl:comment>body matter </xsl:comment>
+		<xsl:comment>TEI body matter </xsl:comment>
 		<xsl:call-template name="startHook"/>
 		<xsl:variable name="ident">
 		  <xsl:apply-templates mode="ident" select="."/>
@@ -2203,7 +2205,7 @@ function click(d) {
 		<xsl:apply-templates select="tei:text/tei:body"/>
 	      </xsl:otherwise>
 	    </xsl:choose>
-	    <xsl:comment>back matter </xsl:comment>
+	    <xsl:comment>TEI back matter </xsl:comment>
 	    <xsl:apply-templates select="tei:text/tei:back"/>
             <xsl:call-template name="printNotes"/>
             <xsl:call-template name="htmlFileBottom"/>
@@ -2257,7 +2259,7 @@ function click(d) {
     <xsl:apply-templates select="tei:sourceDoc"/>
     <xsl:choose>
       <xsl:when test="tei:text/tei:group">
-	<xsl:apply-templates select="tei:text/tei:group"/>
+	<xsl:apply-templates select="tei:text/*"/>
       </xsl:when>
       <xsl:when test="$filePerPage='true'">
 	<xsl:variable name="pass1">	 
@@ -2309,7 +2311,7 @@ function click(d) {
 	</xsl:choose>
       </xsl:when>
       <xsl:otherwise>
-	<!-- front matter -->
+	<xsl:comment>TEI front</xsl:comment>
 	<xsl:apply-templates select="tei:text/tei:front"/>
 	<xsl:if test="$autoToc='true' and (descendant::tei:div or descendant::tei:div1) and not(descendant::tei:divGen[@type='toc'])">
 	  <h2>
@@ -2317,12 +2319,12 @@ function click(d) {
 	  </h2>
 	  <xsl:call-template name="mainTOC"/>
 	</xsl:if>
-	<!-- main text -->
+	<xsl:comment>TEI body</xsl:comment>
 	<xsl:apply-templates select="tei:text/tei:body"/>
+	<xsl:comment>TEI back</xsl:comment>
+	<xsl:apply-templates select="tei:text/tei:back"/>
       </xsl:otherwise>
     </xsl:choose>
-    <!-- back matter -->
-    <xsl:apply-templates select="tei:text/tei:back"/>
       <xsl:call-template name="printNotes"/>
   </xsl:template>
 
@@ -2336,7 +2338,7 @@ function click(d) {
       </xsl:call-template>
     </xsl:variable>
     <xsl:if test="$verbose='true'">
-      <xsl:message>Opening file <xsl:value-of select="$outName"/></xsl:message>
+      <xsl:message>Opening file (pageperfile) <xsl:value-of select="$outName"/></xsl:message>
     </xsl:if>
     
     <xsl:result-document href="{$outName}">
@@ -2947,7 +2949,7 @@ function click(d) {
                </xsl:if>
                <xsl:call-template name="startHook"/>
                <xsl:call-template name="makeDivBody">
-		 <xsl:with-param name="depth" select="count(ancestor::tei:div)"/>
+		 <xsl:with-param name="depth" select="count(ancestor::tei:div)+1"/>
 	       </xsl:call-template>
                <xsl:call-template name="printNotes"/>
                <xsl:if test="$bottomNavigationPanel='true'">
