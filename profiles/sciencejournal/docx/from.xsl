@@ -20,7 +20,7 @@
                 xmlns:mml="http://www.w3.org/1998/Math/MathML"
                 xmlns:tbx="http://www.lisa.org/TBX-Specification.33.0.html"
                 version="2.0"
-                exclude-result-prefixes="ve o r m v wp w10 w wne mml tbx pic rel a         tei teidocx xs iso">
+                exclude-result-prefixes="#all">
     <!-- import base conversion style -->
 
 
@@ -160,15 +160,18 @@ of this software, even if advised of the possibility of such damage.
      </xsl:copy>
    </xsl:template>
 
-  <!-- Instead of using anchor give @xml:id to superordinate element -->
-  <xsl:template match="tei:anchor[not(../@xml:id)][not(preceding-sibling::tei:anchor)]" mode="pass3"/>
-  <xsl:template match="tei:*[not(@xml:id)][tei:anchor]" mode="pass3">
-    <xsl:copy>
-      <xsl:attribute name="xml:id" select="tei:anchor[1]/@xml:id"/>
-      <xsl:apply-templates select="@*" mode="pass3"/>
-      <xsl:apply-templates mode="pass3"/>
-    </xsl:copy>
-  </xsl:template>
+   <!-- try to remove unnecessary anchor elements -->
+   <xsl:template match="tei:anchor" mode="pass3">
+     <xsl:choose>
+       <xsl:when test="preceding-sibling::node()  or parent::*/@xml:id">
+	 <xsl:copy-of select="."/>
+       </xsl:when>
+       <xsl:otherwise>
+	 <xsl:copy-of select="@xml:id"/>
+       </xsl:otherwise>
+     </xsl:choose>
+   </xsl:template>
+
  <!-- and copy everything else -->
 
  <xsl:template match="@*|comment()|processing-instruction()|text()" mode="pass3">
