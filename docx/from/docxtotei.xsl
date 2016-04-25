@@ -704,4 +704,9 @@ of this software, even if advised of the possibility of such damage.
       </xsl:attribute>
     </xsl:template>
     
+
+
+    <!-- We cannot process these elements. -->
+    <xsl:template match="w:pict">
+    </xsl:template>
 </xsl:stylesheet>
