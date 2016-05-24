@@ -438,7 +438,13 @@ of this software, even if advised of the possibility of such damage.
   <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl">
     <desc> &lt;CAPTION&gt; belongs to nearest figure or table</desc>
   </doc>
-  <xsl:template match="tei:CAPTION" mode="pass2"/>
+  <xsl:template match="tei:CAPTION" mode="pass2">
+    <xsl:if test="not(following-sibling::*[1][self::tei:table|self::tei:figure] | preceding-sibling::*[1][self::tei:table|self::tei:figure])">
+      <!-- Cannot find an associated figure, so just dump it. -->
+      <xsl:copy-of select="*"/>
+    </xsl:if>
+  </xsl:template>
+
   <xsl:template match="tei:table|tei:figure" mode="pass2">
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="pass2"/>
