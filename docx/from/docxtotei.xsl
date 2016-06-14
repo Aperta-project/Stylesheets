@@ -36,6 +36,7 @@
 	  <xsl:import href="functions.xsl"/>
 	  <xsl:import href="../variables.xsl"/>
 	  <xsl:import href="omml2mml.xsl"/>
+	  <xsl:import href="omml2mml-overrides.xsl"/>
 	  <xsl:import href="pass0.xsl"/>
 	  <xsl:import href="pass2.xsl"/>
 	
