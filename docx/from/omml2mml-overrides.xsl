@@ -124,10 +124,12 @@
       </xsl:choose>
     </xsl:variable>
     <mml:mover accent="true">
-      <xsl:apply-templates/>
-      <mml:o>
+      <mml:mrow>
+        <xsl:apply-templates select="omml:e[1]"/>
+      </mml:mrow>
+      <mml:mo>
         <xsl:value-of select="omml:non-combining-accent($char)"/>
-      </mml:o>
+      </mml:mo>
     </mml:mover>
   </xsl:template>
 </xsl:stylesheet>
