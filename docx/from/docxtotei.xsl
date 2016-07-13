@@ -24,6 +24,7 @@
                 xmlns:ve="http://schemas.openxmlformats.org/markup-compatibility/2006"
                 xmlns:w10="urn:schemas-microsoft-com:office:word"
                 xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                 xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml"
                 xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
                 
@@ -709,5 +710,8 @@ of this software, even if advised of the possibility of such damage.
 
     <!-- We cannot process these elements. -->
     <xsl:template match="w:pict">
+    </xsl:template>
+
+    <xsl:template match="mc:Choice">
     </xsl:template>
 </xsl:stylesheet>
