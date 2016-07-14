@@ -704,12 +704,10 @@
     <xsl:template match="mc:Choice">
     </xsl:template>
 
-    <xsl:template match="w:pict//v:textbox">
-      <xsl:copy-of select="v:textbox"/>
+    <!-- We cannot process pict directly, but we can try to process textboxes inside them. -->
+    <xsl:template match="w:pict">
+      <xsl:copy-of select="//v:textbox"/>
     </xsl:template>
 
-    <!-- We cannot process these elements. -->
-    <xsl:template match="w:pict">
-    </xsl:template>
 
   </xsl:stylesheet>
