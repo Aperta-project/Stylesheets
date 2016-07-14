@@ -706,7 +706,7 @@
 
     <!-- We cannot process pict directly, but we can try to process textboxes inside them. -->
     <xsl:template match="w:pict">
-      <xsl:copy-of select="//v:textbox"/>
+      <xsl:copy-of select=".//v:textbox"/>
     </xsl:template>
 
 
