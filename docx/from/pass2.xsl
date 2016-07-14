@@ -438,7 +438,13 @@ of this software, even if advised of the possibility of such damage.
   <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl">
     <desc> &lt;CAPTION&gt; belongs to nearest figure or table</desc>
   </doc>
-  <xsl:template match="tei:CAPTION" mode="pass2"/>
+  <xsl:template match="tei:CAPTION" mode="pass2">
+    <xsl:if test="not(following-sibling::*[1][self::tei:table|self::tei:figure] | preceding-sibling::*[1][self::tei:table|self::tei:figure])">
+      <!-- Cannot find an associated figure, so just dump it. -->
+      <xsl:copy-of select="*"/>
+    </xsl:if>
+  </xsl:template>
+
   <xsl:template match="tei:table|tei:figure" mode="pass2">
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="pass2"/>
@@ -599,13 +605,15 @@ of this software, even if advised of the possibility of such damage.
 	  <xsl:value-of select="$target"/>
 	</xsl:processing-instruction>
 	<xsl:choose>
-          <xsl:when test="count(text()) &lt; 2">
+          <xsl:when test="(count(.//text()) &lt; 3) or (count(tei:ref) &gt; 1)">
             <xsl:apply-templates mode="pass2"/>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:value-of select="text()[1]"/>
+            <xsl:value-of select="./text()[1]|(.//node()[not(self::tei:ref) and self::text()])[1]"/>
             <xsl:apply-templates select="*" mode="pass2"/>
-            <xsl:value-of select="remove(text(), 1)"/>
+            <xsl:if test="./text()[last()]">
+              <xsl:value-of select="(.//node()[not(self::tei:ref) and self::text()])[last()]"/>
+            </xsl:if>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>

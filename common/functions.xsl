@@ -513,7 +513,6 @@ of this software, even if advised of the possibility of such damage.
 	    <xsl:when test="(tei:isInline(parent::*)  and
 			    parent::*/preceding-sibling::node()[1][name()=$context])">
 		      <xsl:call-template name="space"/>
-              <xsl:call-template name="space"/>
 	    </xsl:when>
 	    <xsl:when test="position()=1"/>
             <xsl:otherwise>

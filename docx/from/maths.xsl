@@ -161,9 +161,22 @@ of this software, even if advised of the possibility of such damage.
 	  </xsl:copy>
 	  </xsl:when>
           <xsl:otherwise>
-	    <xsl:sequence select="tei:docxError('unable to handle Word
-				  object, possibly  embedded
-				  spreadsheet or equation')"/>
+              <xsl:variable name="defaultErrorMessage" select="'unable to handle Word
+                  object, possibly  embedded
+                  spreadsheet or equation '"></xsl:variable>
+              <xsl:choose>
+                  <xsl:when test="child::o:OLEObject | child::v:imagedata">
+                      <xsl:variable name="rid" select="(child::o:OLEObject | child::v:imagedata)/@r:id"/>
+                      <xsl:variable name="file">
+                          <xsl:value-of select="document(concat($wordDirectory,'/word/_rels/document.xml.rels'))//rel:Relationship[@Id=$rid]/@Target"/>
+                      </xsl:variable>
+                      <xsl:variable name="errorMessage" select="concat($defaultErrorMessage, $file)"/>
+                      <xsl:sequence select="tei:docxError($errorMessage)"/>
+                  </xsl:when>
+                  <xsl:otherwise>
+                      <xsl:sequence select="tei:docxError($defaultErrorMessage)" />
+                  </xsl:otherwise>
+              </xsl:choose>
 	  </xsl:otherwise>
       </xsl:choose>
     </xsl:template>

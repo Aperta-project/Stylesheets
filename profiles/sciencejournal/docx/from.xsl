@@ -65,9 +65,11 @@ of this software, even if advised of the possibility of such damage.
     </desc>
   </doc>
     
-  <xsl:param name="preserveEffects">true</xsl:param>
+  <xsl:param name="preserveEffects">false</xsl:param>
   <xsl:param name="preserveSpace">true</xsl:param>
   <xsl:param name="preserveFontSizeChanges">true</xsl:param>
+  <xsl:param name="verbose">true</xsl:param>
+  <xsl:param name="minimal">true</xsl:param>
 
  <xsl:template match="tei:TEI" mode="pass2">
   <xsl:variable name="pass2">
@@ -90,6 +92,12 @@ of this software, even if advised of the possibility of such damage.
       </desc>
     </doc>
     
+    <!-- Override tei:is-front to ignore any kind of front matter formation -->
+    <xsl:function name="tei:is-front" as="xs:boolean">
+        <xsl:param name="p"/>
+        false
+    </xsl:function>
+
     <xsl:function name="tei:is-heading" as="xs:boolean">
       <xsl:param name="p"/>
       <xsl:variable name="s" select="$p/w:pPr/w:pStyle/@w:val"/>
@@ -163,6 +171,7 @@ of this software, even if advised of the possibility of such damage.
        </xsl:otherwise>
      </xsl:choose>
    </xsl:template>
+
  <!-- and copy everything else -->
 
  <xsl:template match="@*|comment()|processing-instruction()|text()" mode="pass3">

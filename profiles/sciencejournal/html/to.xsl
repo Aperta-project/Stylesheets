@@ -38,6 +38,7 @@
   <xsl:template name="stdfooter"/>
    <xsl:template name="stdheader">
      <xsl:param name="title"/>
+     <xsl:param name="wrap"/>
    </xsl:template>
 
 
@@ -46,7 +47,12 @@
    <xsl:template name="javascriptHook">
      <style type="text/css">
        td {vertical-align: top;}
+       .figure { 
+        border-top: none;
+        border-bottom: none;
+       }
      </style>
+     <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" />
      <xsl:if test="key('TABLESORT',1)">    
        <!-- DataTables CSS -->
        <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css"/>
