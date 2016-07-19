@@ -185,19 +185,26 @@
       <xsl:message terminate="yes">The file <xsl:value-of
           select="$styleDoc"/> cannot be read</xsl:message>
     </xsl:if>
+
+    <xsl:variable name="passOneHalf">
+      <xsl:apply-templates mode="passOneHalf" />
+    </xsl:variable>
+
     <xsl:variable name="pass0">
-      <xsl:apply-templates mode="pass0"/>
+      <xsl:for-each select="$passOneHalf">
+        <xsl:apply-templates mode="pass0" />
+      </xsl:for-each>
     </xsl:variable>
 
     <!-- Do the main transformation and store everything in the variable pass1 -->
     <xsl:variable name="pass1">
       <xsl:for-each select="$pass0">
-        <xsl:apply-templates/>
+        <xsl:apply-templates />
       </xsl:for-each>
     </xsl:variable>		  
 
 
-      <!-- Save the result to a temp file for debugging purposes
+    <!-- Save the result to a temp file for debugging purposes
      <xsl:result-document href="/tmp/foo.xml">
      <xsl:copy-of select="$pass1"/>
      </xsl:result-document>
@@ -250,38 +257,41 @@
    <xsl:template name="mainProcess">
      <xsl:param name="extrarow"  tunnel="yes"/>
      <xsl:param name="extracolumn"   tunnel="yes"/>
-     <!-- group all paragraphs that form a first level section.  -->
-     <xsl:for-each-group select="w:sdt|w:p|w:tbl"
-       group-starting-with="w:p[tei:isFirstlevel-heading(.)]">
+     <!-- 
+     group all paragraphs that form a first level section.
+      -->
+      <xsl:for-each-group select="w:sdt|w:p|w:tbl"
+        group-starting-with="w:p[tei:isFirstlevel-heading(.)]">
 
-       <xsl:choose>
-         <!-- We are dealing with a first level section, we now have
-             to further divide the section into subsections that we can then
-             finally work on -->
-         <xsl:when test="tei:is-heading(.)">
-           <xsl:call-template name="group-by-section"/>
-         </xsl:when>
+        <xsl:choose>
 
-         <xsl:when test="tei:is-front(.)">
-            <front>
-              <xsl:apply-templates select="." mode="inSectionGroup"/>
-            </front>
-         </xsl:when>
+          <!-- We are dealing with a first level section, we now have
+         to further divide the section into subsections that we can then
+         finally work on -->
 
-          <!-- We have found some loose paragraphs. These are most probably
-               front matter paragraps. We can simply convert them without further
-               trying to split them up into sub sections. -->
-         <xsl:otherwise>
-           <xsl:apply-templates select="." mode="inSectionGroup"/>
-         </xsl:otherwise>
-       </xsl:choose>
-     </xsl:for-each-group>
+    <xsl:when test="tei:is-heading(.)">
+      <xsl:call-template name="group-by-section"/>
+    </xsl:when>
 
-      <!-- I have no idea why I need this, but I apparently do. 
-           //TODO: find out what is going on-->
+    <xsl:when test="tei:is-front(.)">
+      <front>
+        <xsl:apply-templates select="." mode="inSectionGroup"/>
+      </front>
+    </xsl:when>
+
+    <!-- We have found some loose paragraphs. These are most probably
+         front matter paragraps. We can simply convert them without further
+         trying to split them up into sub sections. -->
+    <xsl:otherwise>
+      <xsl:apply-templates select="." mode="inSectionGroup"/>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:for-each-group>
+
+<!-- I have no idea why I need this, but I apparently do. 
+     //TODO: find out what is going on-->
       <xsl:apply-templates select="w:sectPr" mode="paragraph"/>
     </xsl:template>
-
     <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl">
       <desc>
         <p>Bookmarks in section mode</p>
@@ -320,6 +330,26 @@
           </ANCHOR>
         </xsl:otherwise>
       </xsl:choose>
+    </xsl:template>
+
+    <xsl:template name="removeNestedTables" match="w:txbxContent/w:tbl" mode="passOneHalf">
+      Could not process table here.  Table was removed.
+    </xsl:template>
+
+    <!-- We cannot process pict directly, but we can try to process textboxes inside them. -->
+    <xsl:template name="unnestFromPict" match="w:pict" mode="passOneHalf">
+      <xsl:apply-templates  select="v:shape/v:textbox/w:txbxContent/*" mode="passOneHalf" />
+    </xsl:template>
+
+
+    <xsl:template match="/ | @* | node()" mode="passOneHalf">
+      <xsl:copy>
+        <xsl:apply-templates select="@* | node()" mode="passOneHalf" />
+      </xsl:copy>
+    </xsl:template>
+
+    <xsl:template match="mc:AlternateContent" name="dropChoiceNodes" mode="passOneHalf">
+      <xsl:apply-templates select="mc:Fallback/*" mode="passOneHalf" />
     </xsl:template>
 
     <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl">
