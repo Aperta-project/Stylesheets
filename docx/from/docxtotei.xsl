@@ -186,12 +186,12 @@
           select="$styleDoc"/> cannot be read</xsl:message>
     </xsl:if>
 
-    <xsl:variable name="passOneHalf">
-      <xsl:apply-templates mode="passOneHalf" />
+    <xsl:variable name="preprocessing">
+      <xsl:apply-templates mode="preprocessing" />
     </xsl:variable>
 
     <xsl:variable name="pass0">
-      <xsl:for-each select="$passOneHalf">
+      <xsl:for-each select="$preprocessing">
         <xsl:apply-templates mode="pass0" />
       </xsl:for-each>
     </xsl:variable>
@@ -332,24 +332,31 @@
       </xsl:choose>
     </xsl:template>
 
-    <xsl:template name="removeNestedTables" match="w:txbxContent/w:tbl" mode="passOneHalf">
-      Could not process table here.  Table was removed.
+    <xsl:template name="removeNestedTables" match="w:txbxContent/w:tbl" mode="preprocessing">
+      <w:p w:rsidR="009C0DAE" w:rsidRDefault="009C0DAE">
+        <w:r>
+          <w:rPr>
+            <w:b/>
+          </w:rPr>
+          <w:t>Could not process table here.  Table was removed.</w:t>
+        </w:r>
+      </w:p>
     </xsl:template>
 
     <!-- We cannot process pict directly, but we can try to process textboxes inside them. -->
-    <xsl:template name="unnestFromPict" match="w:pict" mode="passOneHalf">
-      <xsl:apply-templates  select="v:shape/v:textbox/w:txbxContent/*" mode="passOneHalf" />
+    <xsl:template name="unnestFromPict" match="w:pict" mode="preprocessing">
+      <xsl:apply-templates select="v:shape/v:textbox/w:txbxContent/*" mode="preprocessing" />
     </xsl:template>
 
 
-    <xsl:template match="/ | @* | node()" mode="passOneHalf">
+    <xsl:template match="/ | @* | node()" mode="preprocessing">
       <xsl:copy>
-        <xsl:apply-templates select="@* | node()" mode="passOneHalf" />
+        <xsl:apply-templates select="@* | node()" mode="preprocessing" />
       </xsl:copy>
     </xsl:template>
 
-    <xsl:template match="mc:AlternateContent" name="dropChoiceNodes" mode="passOneHalf">
-      <xsl:apply-templates select="mc:Fallback/*" mode="passOneHalf" />
+    <xsl:template match="mc:AlternateContent" name="dropChoiceNodes" mode="preprocessing">
+      <xsl:apply-templates select="mc:Fallback/*" mode="preprocessing" />
     </xsl:template>
 
     <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl">
@@ -463,7 +470,7 @@
     </doc>
     <xsl:template name="frontSection">
       <titlePage>
-        <xsl:for-each select="current-group()">
+          <xsl:for-each select="current-group()">
           <xsl:apply-templates select="." mode="paragraph"/>
         </xsl:for-each>
       </titlePage>
