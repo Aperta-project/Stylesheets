@@ -333,7 +333,7 @@
     </xsl:template>
 
     <xsl:template name="removeNestedTables" match="w:txbxContent/w:tbl" mode="preprocessing">
-      <w:p w:rsidR="009C0DAE" w:rsidRDefault="009C0DAE">
+      <w:p>
         <w:r>
           <w:rPr>
             <w:b/>
@@ -738,11 +738,11 @@
       </xsl:attribute>
     </xsl:template>
 
-    <xsl:template match="mc:Choice">
+    <xsl:template match="mc:Choice" mode="preprocessing">
     </xsl:template>
 
     <!-- We cannot process pict directly, but we can try to process textboxes inside them. -->
-    <xsl:template match="w:pict">
+    <xsl:template match="w:pict" mode="pass0">
       <xsl:copy-of select=".//v:textbox"/>
     </xsl:template>
 
