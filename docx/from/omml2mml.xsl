@@ -1316,12 +1316,14 @@
 
 				<!-- Case I: The string begins with neither a number, nor an operator -->
 				<xsl:when test="$fOperAtPos1='0' and $fNumAtPos1='0'">
-					          <xsl:variable name="nCharToPrint">
+          <xsl:variable name="nCharToPrint">
 						            <xsl:choose>
 							              <xsl:when test="ancestor::m:fName">
 								                <xsl:choose>
 									                  <xsl:when test="($iFirstOper=$iFirstNum) and             ($iFirstOper=string-length($sToParse)) and                        (substring($sRepOperWith-, string-length($sRepOperWith-))!='0') and                         (substring($sRepOperWith-, string-length($sRepOperWith-))!='-')">
-										                    <xsl:value-of select="string-length($sToParse)"/>
+                                      <mo>
+                                        <xsl:value-of select="string-length($sToParse)"/>
+                                      </mo>
 									                  </xsl:when>
 									                  <xsl:when test="$iFirstOper &lt; $iFirstNum">
 										                    <xsl:value-of select="$iFirstOper - 1"/>
