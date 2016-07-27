@@ -24,7 +24,6 @@
   xmlns:ve="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:w10="urn:schemas-microsoft-com:office:word"
   xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
-  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml"
   xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
   xmlns="http://www.tei-c.org/ns/1.0"
@@ -355,8 +354,8 @@
       </xsl:copy>
     </xsl:template>
 
-    <xsl:template match="mc:AlternateContent" name="dropChoiceNodes" mode="preprocessing">
-      <xsl:apply-templates select="mc:Fallback/*" mode="preprocessing" />
+    <xsl:template match="ve:AlternateContent" name="dropChoiceNodes" mode="preprocessing">
+      <xsl:apply-templates select="ve:Fallback/*" mode="preprocessing" />
     </xsl:template>
 
     <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl">
@@ -738,7 +737,7 @@
       </xsl:attribute>
     </xsl:template>
 
-    <xsl:template match="mc:Choice" mode="preprocessing">
+    <xsl:template match="ve:Choice" mode="preprocessing">
     </xsl:template>
 
     <!-- We cannot process pict directly, but we can try to process textboxes inside them. -->
