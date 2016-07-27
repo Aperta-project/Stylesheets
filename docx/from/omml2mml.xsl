@@ -1321,9 +1321,9 @@
 							              <xsl:when test="ancestor::m:fName">
 								                <xsl:choose>
 									                  <xsl:when test="($iFirstOper=$iFirstNum) and             ($iFirstOper=string-length($sToParse)) and                        (substring($sRepOperWith-, string-length($sRepOperWith-))!='0') and                         (substring($sRepOperWith-, string-length($sRepOperWith-))!='-')">
-                                      <mo>
+                                      <mtext>
                                         <xsl:value-of select="string-length($sToParse)"/>
-                                      </mo>
+                                      </mtext>
 									                  </xsl:when>
 									                  <xsl:when test="$iFirstOper &lt; $iFirstNum">
 										                    <xsl:value-of select="$iFirstOper - 1"/>
