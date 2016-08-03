@@ -49,8 +49,8 @@
     </condition>
   </target>
   <target name="picturecopy" if="${mediadir.exists}">
-    <mkdir dir="${outputDir}/media"/>
-    <move todir="${outputDir}/media" overwrite="true">
+    <mkdir dir="${outputTempDir}/media"/>
+    <move todir="${outputTempDir}/media" overwrite="true">
       <fileset dir="${outputTempDir}/word/media"/>
     </move>
   </target>
