@@ -304,11 +304,31 @@ of this software, even if advised of the possibility of such damage.
 	       <xsl:copy-of select="."/>
 	     </xsl:if>
 	   </xsl:for-each>
-	   <xsl:if test="tei:head">
-	     <caption>
+
+	   <!--
+      For caption placement above the corresponding table or figure
+      this checks to see if the first element is a <head> element. If it is,
+      we assume placement is intended to at the top of the current table
+      appearing above the content.
+     -->
+     <xsl:if test="tei:head and name(*[1]) = 'head'">
+	     <caption class="above">
 	       <xsl:apply-templates select="tei:head"/>
 	     </caption>
 	   </xsl:if>
+
+	   <!--
+      For caption placement below the corresponding table or figure
+      this checks to see if the first element is NOT a <head> element.
+      If it isn't, we assume placement is intended to at the bottom of the
+      current table appearing beneath the content.
+     -->
+     <xsl:if test="tei:head and name(*[1]) != 'head'">
+	     <caption class="below">
+	       <xsl:apply-templates select="tei:head"/>
+	     </caption>
+	   </xsl:if>
+
 	   <xsl:choose>
 	     <xsl:when test="tei:row[tei:match(@rend,'thead')]">
 	       <thead>
