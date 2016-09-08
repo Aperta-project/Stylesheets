@@ -313,7 +313,11 @@ of this software, even if advised of the possibility of such damage.
      -->
      <xsl:if test="tei:head and name(*[1]) = 'head'">
 	     <caption class="above">
-	       <xsl:apply-templates select="tei:head"/>
+          <xsl:for-each select="tei:head">
+            <p>
+              <xsl:apply-templates />
+            </p>
+          </xsl:for-each>
 	     </caption>
 	   </xsl:if>
 
@@ -325,7 +329,11 @@ of this software, even if advised of the possibility of such damage.
      -->
      <xsl:if test="tei:head and name(*[1]) != 'head'">
 	     <caption class="below">
-	       <xsl:apply-templates select="tei:head"/>
+          <xsl:for-each select="tei:head">
+            <p>
+              <xsl:apply-templates />
+            </p>
+          </xsl:for-each>
 	     </caption>
 	   </xsl:if>
 
