@@ -300,7 +300,7 @@ of this software, even if advised of the possibility of such damage.
 		</xsl:for-each>
 	      </xsl:when>
 	      <xsl:otherwise>
-		<xsl:apply-templates select="current-group()"/>
+		<xsl:apply-templates select="current-group()/.."/>
 	      </xsl:otherwise>
 	    </xsl:choose>
 	  </xsl:for-each-group>
